@@ -5,7 +5,7 @@ const history = {}
 const online = {}
 const history_length=30
 for (let server of servers) {
-    history[server] = []
+    history[server] = {cpu_usage:[],memory_usage:[],avg_load:[]}
     online[server]=true
 }
 const server_port = 8888
@@ -28,11 +28,18 @@ io.on('connection', client => {
             console.log(data)
             const server_name=data.server_name
             online[server_name]=true
-            if(history[server_name].length===history_length){
-                history[server_name].shift()
+            if(history[server_name].cpu_usage.length===history_length){
+                history[server_name].cpu_usage.shift()
             }
-            history[server_name].push(data.measurements)
-            const update={server_name:server_name,data:history[server_name][history[server_name].length-1]}
+            if(history[server_name].memory_usage.length===history_length){
+                history[server_name].memory_usage.shift()
+            }
+            history[server_name].avg_load[0]=data.measurements[0]
+            history[server_name].avg_load[1]=data.measurements[1]
+            history[server_name].avg_load[2]=data.measurements[2]
+            history[server_name].memory_usage.push(data.measurements[3])
+            history[server_name].cpu_usage.push(data.measurements[4])
+            const update={server_name:server_name,data:data.measurements}
             io.to("clients").emit('update_history_data', update);
         }
     });
