@@ -1,25 +1,33 @@
 const server = require('http').createServer();
-const io = require('socket.io')(server);
-const servers = ["qef"]
-const history = {}
-const online = {}
-const history_length=30
-for (let server of servers) {
-    history[server] = {cpu_usage:[],memory_usage:[],avg_load:[]}
-    online[server]=true
-}
+// const fs=require('fs')
+// const https  = require('https');
+ 
 const server_port = 8888
 const password = "ghjkjhgt7y8uijk"
 
+// const server = https.createServer({
+//     key: fs.readFileSync('privkey.pem'),
+//     cert: fs.readFileSync('cert.pem')
+// }]);
+
+const io = require('socket.io')(server);
+server.listen(server_port)
+console.log(`Server started. Port ${server_port}`)
+const history = {}
+const online = {}
+const history_length=30
+
 io.on('connection', client => {
     client.on('disconnect', () => { console.log('client disconnected') });
-    client.on('connect_server', (pass) => {
-        if (pass === password) {
+    client.on('connect_server', (data) => {
+        if (data[0] === password) {
+            history[data[1]]={cpu_usage:[],memory_usage:[],avg_load:[]}
+            online[data[1]]=true
             client.join('servers')
         }
     });
     client.on('connect_client', () => { 
-        client.emit('initial_history_data',history)
+        client.emit('initial_history_data',{online,history})
         client.join('clients')
      });
 
@@ -59,5 +67,3 @@ function request_data() {
 }
 
 setInterval(request_data, 1000 * 10) //every minute
-server.listen(server_port)
-console.log(`Server started. Port ${server_port}`)
