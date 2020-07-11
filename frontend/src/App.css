@@ -2,6 +2,10 @@
   text-align: left;
   color: white;
   font-family: 'Roboto', sans-serif;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+
 }
 body{
   background-color: #303030;

@@ -4,7 +4,7 @@ import './App.css';
 import {LineChart,Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip,Legend, ResponsiveContainer} from 'recharts';
 
 import socket_io_client from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:8888";
+const ENDPOINT = "http://localhost:8888";
 
  
 function App() {
@@ -18,11 +18,10 @@ function App() {
     socket.emit("connect_client")
     socket.on("initial_history_data", data => {
       console.log(data)
-      setServersData(data);
+      setServersData(data.history);
+      setOffline(data.online)
     });
     socket.on("update_history_data", update_data => {
-       
-      // setServersData({qef:{cpu_usage:[{cpu:1}]}})
       const server_name=update_data.server_name
       setServersData((servers_data)=>{
         console.log(server_name)
@@ -92,36 +91,17 @@ function App() {
 // //        </div>
 // //   </li>
 // // );
- 
+ let components=Object.keys(servers_data).map((el)=>{
+   console.log(el)
+return (<ServerComponent key={el} name={el}
+status={offline[el]} cpu_usage={servers_data[el].cpu_usage} 
+memory_usage={servers_data[el].memory_usage} avg_load={servers_data[el].avg_load} />)
+ })
+
   return (
     <div className="App">
       {servers_data!==0?
-        
-         (<div>
-           <div><h1>Status</h1></div>
-         <div>
-         <h2>Server 1</h2>
-         <h3>Online</h3>
-         <h3>CPU usage: </h3>
-         <h3>Memory usage: </h3>
-         <h3>avg load (5,10,15): </h3>
-       </div>
-       <div>
-         <h2>Server 2</h2>
-         <h3>Online</h3>
-         <h3>CPU usage: </h3>
-         <h3>Memory usage: </h3>
-         <h3>avg load (5,10,15): </h3>
-       </div>
-       <div>
-         <h2>Server 3</h2>
-         <h3>Online</h3>
-         <h3>CPU usage: </h3>
-         <h3>Memory usage: </h3>
-         <h3>avg load (5,10,15): </h3>
-       </div>
-         </div>
-         )
+      (components)
       :null}
       
    
@@ -140,7 +120,7 @@ function App() {
         </a>
       </header> */}
      
-      <LineChart width={300} height={200} data={servers_data['qef']?.cpu_usage}
+      {/* <LineChart width={300} height={200} data={servers_data['qef']?.cpu_usage}
             margin={{top: 5, right: 30, left: 20, bottom: 5}}>
        <XAxis/>
        <YAxis />
@@ -148,7 +128,7 @@ function App() {
        <Tooltip/>
        <Legend />
        <Line type="monotone" dataKey="cpu"  stroke="#82ca9d" />
-      </LineChart>
+      </LineChart> */}
 
       {/* <LineChart width={300} height={200} data={data}
             margin={{top: 5, right: 30, left: 20, bottom: 5}}>
@@ -163,4 +143,34 @@ function App() {
   );
 }
 
+function ServerComponent(props) {
+  console.log(props)
+  return (
+    <div>
+      <h2>Server {props.name}</h2>
+      <h3>{props.status}</h3>
+      <h3>CPU usage: {props.cpu_usage[props.cpu_usage.length-1]?.cpu}</h3>
+      <h3>Memory usage: {props.memory_usage[props.memory_usage.length-1]?.memory}</h3>
+      <h3>avg load (5,10,15): {props.avg_load}</h3>
+      <LineChart width={300} height={200} data={props.cpu_usage}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <XAxis />
+        <YAxis />
+        <CartesianGrid strokeDasharray="3 3" />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="cpu" stroke="#82ca9d" />
+      </LineChart>
+      <LineChart width={300} height={200} data={props.memory_usage}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <XAxis />
+        <YAxis />
+        <CartesianGrid strokeDasharray="3 3" />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="memory" stroke="#82ca9d" />
+      </LineChart>
+    </div>
+  )
+}
 export default App;
