@@ -3,12 +3,15 @@ const os = require('os-utils'); //https://github.com/oscmejia/os-utils
 const socket = io.connect("ws://localhost:8888");
 // const socket = io.connect("wss://localhost", {rejectUnauthorized: false});
 const password = "ghjkjhgt7y8uijk"
-const server_name="qefef"
+const server_name="qefef2"
 console.log(os.loadavg(1),
 os.loadavg(5),
 os.loadavg(15))
  
-socket.on('connect', function(){console.log("connected")});
+socket.on('connect', function(){
+    console.log("connected")
+    socket.emit('connect_server',[password,server_name]);
+});
 socket.on('get_data', function(pass){
     if(pass===password){
         os.cpuUsage( function(cpu_usage) {
@@ -16,4 +19,3 @@ socket.on('get_data', function(pass){
         } )  
     }
 });
-socket.emit('connect_server',[password,server_name]);
