@@ -74,7 +74,7 @@ function ServerComponent(props) {
       <h2>Server {props.name}: {props.online ? "Online" : "Offline"}</h2>
       <h3>CPU usage: {props.cpu_usage[props.cpu_usage.length - 1]?.cpu.toFixed(4)}</h3>
       <h3>Memory usage: {props.memory_usage[props.memory_usage.length - 1]?.memory.toFixed(4)}</h3>
-      <h3>avg load (5,10,15): {props.avg_load[0]?.toFixed(4)} {props.avg_load[1]?.toFixed(4)} {props.avg_load[2]?.toFixed(4)}</h3>
+      <h3>avg load (1,5,15): {props.avg_load[0]?.toFixed(4)} {props.avg_load[1]?.toFixed(4)} {props.avg_load[2]?.toFixed(4)}</h3>
       <LineChart width={300} height={200} data={props.cpu_usage}
       >
         <XAxis />
