@@ -21,8 +21,12 @@ io.on('connection', client => {
     client.on('disconnect', () => { console.log('client disconnected') });
     client.on('connect_server', (data) => {
         if (data[0] === password) {
-            history[data[1]]={cpu_usage:[],memory_usage:[],avg_load:[]}
-            online[data[1]]=true
+            console.log("server connected")
+            if(history[data[1]]===undefined&&online[data[1]]===undefined){
+                history[data[1]]={cpu_usage:[],memory_usage:[],avg_load:[]}
+                online[data[1]]=true
+            }
+            io.emit('initial_history_data',{online,history})
             client.join('servers')
         }
     });
